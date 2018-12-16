@@ -21,6 +21,7 @@ Setting up
 Run the following docker commands:
 
 `docker pull elgalu/selenium`
+
 `docker build . --tag [name]`
 
 This will build the docker file and you will then have a local image, now run:
@@ -34,9 +35,10 @@ Afterwards it will send you grades when they update.
 
 Finally run the following and then exit the docker container:
 
-```
-`crond -l 2 -f`
+`crond -l 2 -f` To run crond with log level 2
+
 Hit`Ctrl-Z` To stop crond
+
 `bg` To run previously stopped command in background
+
 Hit `Ctrl-p` then `Ctrl-q` To exit interactive mode for docker
-```
