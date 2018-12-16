@@ -41,5 +41,5 @@ Hit`Ctrl-Z` To stop crond
 Hit `Ctrl-p` then `Ctrl-q` To exit interactive mode for docker
 
 You will know if the process is working if you get an email + text with a list of your previous grades.
-This initial email and text message will be sent everytime you run the container (no persistant storage).
+This initial email and text message will be sent everytime you run the container from scratch (no persistant storage).
 Afterwards it will send you grades when they update.
