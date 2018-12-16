@@ -34,7 +34,9 @@ Afterwards it will send you grades when they update.
 
 Finally run the following and then exit the docker container:
 
+```
 `crond -l 2 -f`
-`Hit Ctrl-Z` To stop crond
+Hit`Ctrl-Z` To stop crond
 `bg` To run previously stopped command in background
-`Ctrl-p + Ctrl-q` To exit interactive mode for docker
+Hit `Ctrl-p` then `Ctrl-q` To exit interactive mode for docker
+```
