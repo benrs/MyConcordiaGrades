@@ -1,5 +1,3 @@
-# TODO: Replace manual input with GUI form
-
 netname = None
 password = None
 sourceEmail = None
@@ -12,6 +10,7 @@ provider = None
 destEmail = None
 
 import sqlite3
+from getpass import getpass
 
 conn = sqlite3.connect('ConcordiaGrades.db')
 
@@ -21,9 +20,9 @@ cursor = conn.execute('''SELECT name
 						 WHERE type='table' 
 						 AND name='Settings';''')
 
-existingSettings = not (len(cursor.fetchall()) == 0)
+settingsExist = not (len(cursor.fetchall()) == 0)
 
-if not existingSettings:
+if not settingsExist:
 	conn.execute('''CREATE TABLE Settings(
 						Netname VARCHAR(7) PRIMARY KEY,
 						Password VARCHAR(30) NOT NULL,
@@ -31,25 +30,24 @@ if not existingSettings:
 						EmailPass VARCHAR(50) NOT NULL,
 						ToSendText INTEGER NOT NULL,
 						ToSendEmail INTEGER NOT NULL,
-						ToSendDesktopNotification INTEGER NOT NULL,
 						CellNum VARCHAR(11),
 						Provider VARCHAR(40),
 						DestEmail VARCHAR(254)
 					);''')
-	print "MyConcordia netname: "
-	netname = raw_input()
-	print "MyConcordia password: "
-	password = raw_input()
-	print "Gmail username to send texts/emails from: "
-	sourceEmail = raw_input()
-	print "Gmail password: "
-	emailPass = raw_input()
+	print("MyConcordia netname: ")
+	netname = input()
+	print("MyConcordia password: ")
+	password = getpass()
+	print("Gmail username to send texts/emails from (create a dummy account if need be): ")
+	sourceEmail = input()
+	print("Gmail password: ")
+	emailPass = getpass()
 	
-	print "This script can notify you of new grades by text message, email, and/or desktop notification."
-	print "Please note: Choosing to receive texts by email-to-SMS Gateway might result in extra phone bill charges, depending on your carrier. Use at your own discretion."
+	print("This script can notify you of new grades by text message and email.")
+	print("Please note: Choosing to receive texts by email-to-SMS Gateway might result in extra phone bill charges, depending on your carrier. Use at your own discretion.")
 	
-	print "Do you want to receive text message notifications? (y/n): "
-	toSendText = raw_input()
+	print("Do you want to receive text message notifications? (y/n): ")
+	toSendText = input()
 	while True:
 		if toSendText == 'y':
 			toSendText = 1
@@ -58,11 +56,11 @@ if not existingSettings:
 			toSendText = 0
 			break
 		else:
-			print "Invalid input. Do you want to receive text message notifications? (y/n): "
-			toSendText = raw_input()
+			print("Invalid input. Do you want to receive text message notifications? (y/n): ")
+			toSendText = input()
 
-	print "Do you want to receive email notifications? (y/n): "
-	toSendEmail = raw_input()
+	print("Do you want to receive email notifications? (y/n): ")
+	toSendEmail = input()
 	while True:
 		if toSendEmail == 'y':
 			toSendEmail = 1
@@ -71,40 +69,25 @@ if not existingSettings:
 			toSendEmail = 0
 			break
 		else:
-			print "Invalid input. Do you want to receive email notifications? (y/n): "
-			toSendEmail = raw_input()
-
-	print "Do you want to receive desktop notifications? (y/n): "
-	toSendDesktopNotification = raw_input()
-	while True:
-		if toSendDesktopNotification == 'y':
-			toSendDesktopNotification = 1
-			break
-		elif toSendDesktopNotification == 'n':
-			toSendDesktopNotification = 0
-			break
-		else:
-			print "Invalid input. Do you want to receive desktop notifications? (y/n): "
-			toSendDesktopNotification = raw_input()
+			print("Invalid input. Do you want to receive email notifications? (y/n): ")
+			toSendEmail = input()
 	
 	if toSendText:
-		print "Input cell number to receive text messages at: "
-		cellNum = raw_input()
-		print "Input cell provider (Select a provider from smsGateways.txt; if yours is not there, add it to file): "
-		provider = raw_input()
+		print("Input cell number to receive text messages at: ")
+		cellNum = input()
+		print("Input cell provider (Select a provider from smsGateways.txt; if yours is not there, add it to file): ")
+		provider = input()
 	
 	if toSendEmail:
-		print "Input email to receive notifications at: "
-		destEmail = raw_input()
+		print("Input email to receive notifications at: ")
+		destEmail = input()
 
 	conn.execute("INSERT INTO `Settings` " +
-	"(`Netname`, `Password`, `SourceEmail`, `EmailPass`, `ToSendText`, `ToSendEmail`, `ToSendDesktopNotification`, `CellNum`, `Provider`, `DestEmail`)" +
-	" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-	(netname, password, sourceEmail, emailPass, toSendText, toSendEmail, toSendDesktopNotification, cellNum, provider, destEmail))
+	"(`Netname`, `Password`, `SourceEmail`, `EmailPass`, `ToSendText`, `ToSendEmail`, `CellNum`, `Provider`, `DestEmail`)" +
+	" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+	(netname, password, sourceEmail, emailPass, toSendText, toSendEmail, cellNum, provider, destEmail))
 	conn.commit()
 else:
-	print "Settings already exist. To input new settings, please delete ConcordiaGrades.db"
-	# TODO: Replace with "Value is [val]; Replace?" (unless password; then do not display)
-	# cursor = conn.execute('''SELECT * FROM `Settings`;''')
+	print("Settings already exist. To input new settings, please delete ConcordiaGrades.db")
 
 conn.close()

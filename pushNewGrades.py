@@ -1,5 +1,5 @@
 def errorLogging(error):
-	print "The error: "+str(type(error))+" has occurred"
+	print("The error: "+str(type(error))+" has occurred")
 	
 def sendEmail(gmail, pw, to, message):
 	smtpserver = smtplib.SMTP("smtp.gmail.com", 587)
@@ -17,10 +17,9 @@ import sqlite3
 conn = sqlite3.connect('ConcordiaGrades.db')
 
 cursor = conn.execute('''SELECT `Netname`, `Password`, `SourceEmail`, `EmailPass`,
-								`ToSendText`, `ToSendEmail`, `ToSendDesktopNotification`,
-								`CellNum`, `Provider`, `DestEmail`
-							FROM `Settings`;
-						''')
+								`ToSendText`, `ToSendEmail`, `CellNum`, `Provider`, `DestEmail`
+						 FROM `Settings`;
+					  ''')
 
 settings = cursor.fetchall()[0]
 						
@@ -31,24 +30,30 @@ yourEmail      = settings[2]
 yourEmailPass  = settings[3]
 toSendText     = settings[4]
 toSendEmail    = settings[5]
-toDesktopNotif = settings[6]
-yourNumber     = settings[7]
-yourProvider   = settings[8]
-destEmail      = settings[9]
+yourNumber     = settings[6]
+yourProvider   = settings[7]
+destEmail      = settings[8]
 
 import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
-driver     = webdriver.PhantomJS()
+options = Options()
+options.add_argument("--headless")
+options.add_argument('--no-sandbox')
+options.add_argument('start-maximized') 
+options.add_argument('disable-infobars')
+options.add_argument("--disable-extensions")
+driver     = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
 wait       = WebDriverWait(driver, 10)
 exceptions = False
 grades     = {}
 
 # Connect to the "View My Grades" page
-driver.get("https://campus.concordia.ca/psp/pscsprd/EMPLOYEE/HRMS/c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.GBL?")
+driver.get("https://campus.concordia.ca/psp/pscsprd/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.GBL?")
 
 try:
 	# Set the username and password
@@ -90,9 +95,9 @@ try:
 				# Loop keeps going until it can't find anymore grades
 				j = 0
 				while True:
-					grade  = driver.find_element_by_id("win0divDERIVED_SSS_HST_DESCRSHORT$"+str(j))
+					grade  = driver.find_element_by_id("win0divDERIVED_SSS_HST_DESCRSHORT$" + str(j))
 					grade  = grade.find_elements_by_css_selector("*")[0].get_attribute("innerHTML")
-					gClass = driver.find_element_by_id("CLS_LINK$"+str(j)).get_attribute("innerHTML")
+					gClass = driver.find_element_by_id("CLS_LINK$" + str(j)).get_attribute("innerHTML")
 
 					# Store the grade
 					if grade != "&nbsp;":
@@ -115,9 +120,8 @@ finally:
 	driver.quit()
 
 	if exceptions:
+		print('Error occured during the runtime of the script')
 		sys.exit()
-
-# Check if the grades already exists in the database
 
 # Check if the grades table exists, if not then create it
 cursor = conn.execute('''SELECT name 
@@ -171,26 +175,12 @@ if len(newGrades) > 0:
 
 	if toSendEmail:
 		to = destEmail
-		
 		sendEmail(yourEmail, yourEmailPass, to, message)
-		
-	if toDesktopNotif:
-		import os
-		file = open('notif.txt', 'w+')
-		file.write(message)
-		file.close()
-		os.startfile("notif.txt")
 	
 	# Add the new grades to the DB
 	for course in newGrades:
 		conn.execute("DELETE FROM `Grades` WHERE `Class` = \'"+course+"\'")
 		conn.execute("INSERT INTO `Grades` (`Class`, `Grade`) VALUES (\'"+course+"\', \'"+newGrades[course]+"\');")
 	conn.commit()
-
-	# REMOVE IN PRODUCTION
-	print "Grades successfully sent via SMS"
-else:
-	# REMOVE IN PRODUCTION
-	print "No new grades to push"
 
 conn.close()
