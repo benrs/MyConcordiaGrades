@@ -146,7 +146,7 @@ newGrades = grades
 
 # Remove grades we have already seen
 for row in cursor:
-	for course in newGrades.keys():
+	for course in list(newGrades):
 		if row[0] == course and row[1] == newGrades[course]:
 			del newGrades[course]
 
