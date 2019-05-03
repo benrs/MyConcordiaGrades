@@ -29,7 +29,7 @@ This will build the docker file and you will then have a local image, now run:
 Currently configurable environment variables:
 
 ```
-'USERNAME' = You MyConcordia username
+'USERNAME' = Your MyConcordia username
 'PASSWORD' = Your MyConcordia password
 'EMAIL' = Your dummy email
 'EMAIL_PASSWORD' = Your dummy emails password
