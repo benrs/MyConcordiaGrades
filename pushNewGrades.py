@@ -1,3 +1,5 @@
+import os
+
 def errorLogging(error):
 	print("The error: "+str(type(error))+" has occurred")
 	
@@ -12,27 +14,20 @@ def sendEmail(gmail, pw, to, message):
 	smtpserver.sendmail(gmail, to, msg)
 	smtpserver.close()
 
-# Get credentials and settings
-import sqlite3
-conn = sqlite3.connect('ConcordiaGrades.db')
-
-cursor = conn.execute('''SELECT `Netname`, `Password`, `SourceEmail`, `EmailPass`,
-								`ToSendText`, `ToSendEmail`, `CellNum`, `Provider`, `DestEmail`
-						 FROM `Settings`;
-					  ''')
-
-settings = cursor.fetchall()[0]
+print("Loading environment variables")
 						
 # Initialize all of these variables to your information
-yourUsername   = settings[0]
-yourPassword   = settings[1]
-yourEmail      = settings[2]
-yourEmailPass  = settings[3]
-toSendText     = settings[4]
-toSendEmail    = settings[5]
-yourNumber     = settings[6]
-yourProvider   = settings[7]
-destEmail      = settings[8]
+yourUsername   = os.environ['USERNAME']
+yourPassword   = os.environ['PASSWORD']
+yourEmail      = os.environ['EMAIL']
+yourEmailPass  = os.environ['EMAIL_PASSWORD']
+toSendText     = os.environ['TEXT_ME']
+toSendEmail    = os.environ['EMAIL_ME']
+yourNumber     = os.environ['PHONE_NUMBER']
+yourProvider   = os.environ['PROVIDER']
+destEmail      = os.environ['RECEIVE_EMAIL']
+
+print("Starting script")
 
 import sys
 from selenium import webdriver
@@ -123,6 +118,14 @@ finally:
 		print('Error occured during the runtime of the script')
 		sys.exit()
 
+print("Connecting to database")
+
+# Connect to local db
+import sqlite3
+conn = sqlite3.connect('ConcordiaGrades.db')
+
+print("Checking Grades")
+
 # Check if the grades table exists, if not then create it
 cursor = conn.execute('''SELECT name 
 						 FROM sqlite_master 
@@ -141,7 +144,7 @@ cursor = conn.execute('''SELECT `Class`, `Grade`
 
 newGrades = grades
 
-# Make sure we haven't already sent the grades already
+# Remove grades we have already seen
 for row in cursor:
 	for course in newGrades.keys():
 		if row[0] == course and row[1] == newGrades[course]:
@@ -173,6 +176,7 @@ if len(newGrades) > 0:
 		
 		sendEmail(yourEmail, yourEmailPass, to, message)
 
+	# If the user wants an email notification
 	if toSendEmail:
 		to = destEmail
 		sendEmail(yourEmail, yourEmailPass, to, message)
@@ -184,3 +188,5 @@ if len(newGrades) > 0:
 	conn.commit()
 
 conn.close()
+
+print("Ran Script")

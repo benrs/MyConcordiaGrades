@@ -20,25 +20,29 @@ Setting up
 
 Run the following docker commands:
 
-`docker pull elgalu/selenium`
-
 `docker build . --tag [name]`
 
 This will build the docker file and you will then have a local image, now run:
 
-`docker run -it --name [whatever] [name] bash`
+`docker run -d -e (Environment Variables) --name [whatever] [name] bash`
 
-You will then have to run the `init.py` script.
+Currently configurable environment variables:
 
-Finally run the following and then exit the docker container:
+```
+'USERNAME' = You MyConcordia username
+'PASSWORD' = Your MyConcordia password
+'EMAIL' = Your dummy email
+'EMAIL_PASSWORD' = Your dummy emails password
+'TEXT_ME' = 0 or 1
+'EMAIL_ME' = 0 or 1
+'PHONE_NUMBER' = Your phone number
+'PROVIDER' = Your phone provider, check smsGateways.txt
+'RECEIVE_EMAIL' = Your email you want to receive an email at
+```
 
-`crond -l 2 -f` To run crond with log level 2
+Example of run command:
 
-Hit`Ctrl-Z` To stop crond
-
-`bg` To run previously stopped command in background
-
-Hit `Ctrl-p` then `Ctrl-q` To exit interactive mode for docker
+`docker run -d -e USERNAME="USER" -e PASSWORD="PASS." -e EMAIL="dummy@gmail.com" -e EMAIL_PASSWORD="dummypass" -e TEXT_ME=1 -e EMAIL_ME=1 -e PHONE_NUMBER="5141234567" -e PROVIDER="Koodo Mobile" -e RECEIVE_EMAIL="myactualemail@gmail.com" --name grades grades`
 
 You will know if the process is working if you get an email + text with a list of your previous grades.
 This initial email and text message will be sent everytime you run the container from scratch (no persistant storage).
